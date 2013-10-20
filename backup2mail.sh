@@ -1,19 +1,20 @@
 #!/bin/bash
-#
-# respaldo y envio por e-mail
-# -> requiere package biambam
+# Create backup of files (tgz) and send it to an e-mail account to storage 
+# 
+# -> requieres package biabam
  
-# En mismo directorio respaldar.txt para lista archivos, uno por linea
+# At the same directory requires $FILELIST with a file/folders to backup one per line
+FILELIST=respaldar.txt
 if [ -h $0 ]; then
-   RESPARCHIVO=`dirname $(readlink $0)`/respaldar.txt;
+   RESPARCHIVO=`dirname $(readlink $0)`/$FILELIST;
 else
-   RESPARCHIVO=`dirname $0`/respaldar.txt;
+   RESPARCHIVO=`dirname $0`/$FILELIST;
 fi
 if [ ! -f $RESPARCHIVO ]; then
-   echo "Archivo $RESPARCHIVO no encontrado" | /usr/bin/mail -s "$HOSTNAME Error" $TO; exit 1
+   echo "$RESPARCHIVO file not found" | /usr/bin/mail -s "$HOSTNAME Error" $TO; exit 1
 fi
  
-TO="rootway@email-gmail.com"  # CAMBIAR !!
+TO="rootway@email-gmail.com"  # CHANGE IT !!
  
 DATE=$(date +%Y%m%d-%H%M)
 DIRTMP=$RANDOM
@@ -29,10 +30,10 @@ cd $DIRDEST
 tar czf /tmp/$DIRTMP/$HOSTNAME-$DATE.tgz .
  
 if [ -x /usr/bin/biabam ]; then
-   echo "Adjunto archivo respaldo $HOSTNAME de fecha $DATE" | /usr/bin/biabam /tmp/$DIRTMP/$HOSTNAME-$DATE.tgz \
-       -s "RESPALDO $HOSTNAME del $DATE" $TO
+   echo "Backup $HOSTNAME of $DATE is attached" | /usr/bin/biabam /tmp/$DIRTMP/$HOSTNAME-$DATE.tgz \
+       -s "BACKUP $HOSTNAME of $DATE" $TO
 else
-   echo "No existe el utilitario biabam, instale el paquete" | /usr/bin/mail -s "$HOSTNAME Error" $TO
+   echo "biabam utility is not installed, apt-get install biabam" | /usr/bin/mail -s "$HOSTNAME Error" $TO
 fi
  
 rm -R /tmp/$DIRTMP
