@@ -1,14 +1,39 @@
 #!/bin/bash
-# Create backup of files (tgz) and send it to an e-mail account to storage 
+#
+# backup2email.sh - Creates backup tgz file and send it to e-mail account
+#
+# Site: 	https://github.com/ysidorito/backup2mail
+# Author:	Rodolfo Pilas <rodolfo@pilas.net>
 # 
-# -> requires full working MTA (smtp) server at localhost & mail command
-# -> requieres package biabam
+# -----------------------------------------------------------------------
+# This program creates a backup tgz file from external list of files and
+# folders ($FILELIST) then enclose it to a email address ($TO)
+#
+# It all works no stdout message is issued. Ready to CRON process
+# 
+# -> requires full working MTA (smtp) server at localhost 
+# -> requires mail command to deliver errors (package bsd-mailx)
+# -> requires package: biabam
+# -----------------------------------------------------------------------
+#
+# History:
+# 1.0 2013-11-01 First stable/public release
+#
+# ToDo:
+# * Avoid local disk usage previous create tgz
+# * Avoid error if $FILELIST do not exists (enables isolated run)
+# * Error to STDERR if mail command or smtp-local-server not installed
+#
+# License: The MIT License (MIT)
+# 
  
-# ## CHANGE HERE ### 
+# -- CHANGE HERE -- ####################################################
 TO="rootway@email-gmail.com"   # e-mail to send backup files
 FILELIST=respaldar.txt         # file at the same directory with file/folders to backup
 
-# ## NO more change needed from here ##
+########################################################################
+
+# -- NO more change needed from here -- ################################
 if [ -h $0 ]; then
    RESPARCHIVO=`dirname $(readlink $0)`/$FILELIST;
 else
