@@ -7,9 +7,9 @@
 # 
 # -----------------------------------------------------------------------
 # This program creates a backup tgz file from external list of files and
-# folders ($FILELIST) then enclose it to a email address ($TO)
+# folders ($FILELIST), then enclose it to a email address ($TO)
 #
-# It all works no stdout message is issued. Ready to CRON process
+# It all works no stdout message is issued. Ready as CRON process
 # 
 # -> requires full working MTA (smtp) server at localhost 
 # -> requires mail command to deliver errors (package bsd-mailx)
@@ -21,28 +21,37 @@
 #
 # ToDo:
 # * Avoid local disk usage previous create tgz
+# * Incluir contenido del respaldo en el texto del e-mail
 # * Avoid error if $FILELIST do not exists (enables isolated run)
 # * Error to STDERR if mail command or smtp-local-server not installed
+# * Define max size to e-mail (perhaps split attached file)
+# * Ensure work on RedHat family OS too
 #
 # License: The MIT License (MIT)
 # 
  
 # -- CHANGE HERE -- ####################################################
-TO="rootway@email-gmail.com"   # e-mail to send backup files
-FILELIST=respaldar.txt         # file at the same directory with file/folders to backup
+TO="rootway@email-gmail.com"    # e-mail to send backup files
+FILELIST=respaldar.txt          # file at the same directory with 
+                                #   file & folders to backup
 
 ########################################################################
 
 # -- NO more change needed from here -- ################################
-if [ -h $0 ]; then
-   RESPARCHIVO=`dirname $(readlink $0)`/$FILELIST;
-else
-   RESPARCHIVO=`dirname $0`/$FILELIST;
-fi
-if [ ! -f $RESPARCHIVO ]; then
-   echo "$RESPARCHIVO file not found" | /usr/bin/mail -s "$HOSTNAME Error" $TO
-   exit 1
-fi
+
+function filelistpath() {
+    if [ -h $0 ]; then
+        RESPARCHIVO=`dirname $(readlink $0)`/$FILELIST;
+    else
+        RESPARCHIVO=`dirname $0`/$FILELIST;
+    fi
+    if [ ! -f $RESPARCHIVO ]; then
+        echo "$RESPARCHIVO file not found" | /usr/bin/mail -s "$HOSTNAME Error" $TO
+        exit 1
+    fi
+}
+
+filelistpath
 DATE=$(date +%Y%m%d-%H%M)
 DIRTMP=$RANDOM
 DIRDEST=/tmp/$DIRTMP/$HOSTNAME-$DATE
