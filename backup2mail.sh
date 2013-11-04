@@ -12,11 +12,11 @@
 # It all works no stdout message is issued. Ready as CRON process
 # 
 # -> requires full working MTA (smtp) server at localhost 
-# -> requires mail command to deliver errors (package bsd-mailx)
 # -> requires package: biabam
 # -----------------------------------------------------------------------
 #
 # History:
+# 1.5 2013-11-04 Errors to STDERR if mail command not present
 # 1.0 2013-11-01 First stable/public release
 #
 # License: The MIT License (MIT)
@@ -38,29 +38,45 @@ function filelistpath() {
         RESPARCHIVO=`dirname $0`/$FILELIST;
     fi
     if [ ! -f $RESPARCHIVO ]; then
-        echo "$RESPARCHIVO file not found" | /usr/bin/mail -s "$HOSTNAME Error" $TO
+        if [ -x /usr/bin/mail ]; then
+            echo "ERROR: BACKUP $HOSTNAME Error: $RESPARCHIVO file not found" | /usr/bin/mail \
+	    	-s "BACKUP $HOSTNAME Error" $TO
+        else
+	    echo "WARNING: Command mail not installed" >&2
+            echo "ERROR: BACKUP $HOSTNAME Error: $RESPARCHIVO file not found"  >&2
+        fi
         exit 1
     fi
 }
 
+function checkbiabam() {
+if [ ! -x /usr/bin/biabam ]; then
+   if [ -x /usr/bin/mail ]; then
+      echo "ERROR: BACKUP $HOSTNAME Error: biabam utility is not installed" | /usr/bin/mail \
+         -s "BACKUP $HOSTNAME Error" $TO
+    else
+      echo "WARNING: Command mail not installed" >&2
+      echo "ERROR: BACKUP $HOSTNAME Error: biabam utility is not installed"  >&2
+   fi
+   exit 2
+fi
+}
+
 filelistpath
+checkbiabam
 DATE=$(date +%Y%m%d-%H%M)
 DIRTMP=$RANDOM
 DIRDEST=/tmp/$DIRTMP/$HOSTNAME-$DATE
-if [ -x /usr/bin/biabam ]; then
-   mkdir -p $DIRDEST
-   dpkg --get-selections > $DIRDEST/dpkg-selections   # Debian Package Manager !
-   for RESPALDAR in $(cat $RESPARCHIVO); do
-      cp -r --preserve --parents $RESPALDAR $DIRDEST
-   done
-   cd $DIRDEST
-   tar czf /tmp/$DIRTMP/$HOSTNAME-$DATE.tgz .
-   echo "Backup $HOSTNAME of $DATE is attached" | /usr/bin/biabam /tmp/$DIRTMP/$HOSTNAME-$DATE.tgz \
-       -s "BACKUP $HOSTNAME of $DATE" $TO
-   rm -R /tmp/$DIRTMP
-else
-   echo "biabam utility is not installed, apt-get install biabam" | /usr/bin/mail -s "$HOSTNAME Error" $TO
-   exit 2
-fi
-exit 0
 
+mkdir -p $DIRDEST
+dpkg --get-selections > $DIRDEST/dpkg-selections   # Debian Package Manager !
+for RESPALDAR in $(cat $RESPARCHIVO); do
+      cp -r --preserve --parents $RESPALDAR $DIRDEST
+done
+cd $DIRDEST
+tar czf /tmp/$DIRTMP/$HOSTNAME-$DATE.tgz .
+echo "Backup $HOSTNAME of $DATE is attached" | /usr/bin/biabam /tmp/$DIRTMP/$HOSTNAME-$DATE.tgz \
+       -s "BACKUP $HOSTNAME of $DATE" $TO
+rm -R /tmp/$DIRTMP
+
+exit 0

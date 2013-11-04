@@ -9,7 +9,7 @@ Installation
 
 * Requires a full functional MTA (smtp) working at localhost
 
-* Requires mail comand, i.e:  
+* It is suggested mail comand (if not, errors goes to STDERR)  
 
 ```bash
 apt-get install bsd-mailx
@@ -27,7 +27,7 @@ apt-get install biabam
 cd /usr/local/sbin
 wget https://github.com/ysidorito/backup2mail/archive/master.zip
 unzip master.zip && rm master.zip
-cd backup2mail
+cd backup2mail-master
 chmod 750 backup2mail.sh
 ```
 
@@ -59,7 +59,7 @@ ToDo
 - [ ] Avoid local disk usage previous create tgz
 - [ ] Incluir contenido del respaldo en el texto del e-mail
 - [ ] Avoid error if $FILELIST do not exists (enables isolated run)
-- [ ] Error to STDERR if mail command or smtp-local-server not installed
+- [x] Error to STDERR if mail command or smtp-local-server not installed
 - [ ] Define max size to e-mail (perhaps split attached file)
 - [ ] Ensure work on RedHat family OS too
 
