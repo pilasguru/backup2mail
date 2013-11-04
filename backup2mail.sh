@@ -19,14 +19,6 @@
 # History:
 # 1.0 2013-11-01 First stable/public release
 #
-# ToDo:
-# * Avoid local disk usage previous create tgz
-# * Incluir contenido del respaldo en el texto del e-mail
-# * Avoid error if $FILELIST do not exists (enables isolated run)
-# * Error to STDERR if mail command or smtp-local-server not installed
-# * Define max size to e-mail (perhaps split attached file)
-# * Ensure work on RedHat family OS too
-#
 # License: The MIT License (MIT)
 # 
  
